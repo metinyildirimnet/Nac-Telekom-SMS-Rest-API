@@ -36,9 +36,9 @@ $jsonData = array(
     "sendingType" => 0,
     "title" => "Siparişiniz için teşekkür ederiz.",
     "content" => "Test amaçlı tekil mesaj örneğidir, dikkate almayınız.",
-    "number" => 905340129823,
+    "number" => 90534*******,
     "encoding" => 0,
-    "sender" => "GULTEKKIMYA",
+    "sender" => "METINYILDIRIM",
     "validity" => 60
 );
 
