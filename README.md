@@ -63,5 +63,4 @@ echo $creditResponse;
 
 ```
 
-2. Manuel olarak:
-Bu repoyu projelerinizde kullanmak isterseniz info{at]metinyildirim.net adresinden bana ulaşabilirsiniz.
+2. Bu repoyu projelerinizde kullanmak isterseniz info{at]metinyildirim.net adresinden bana ulaşabilirsiniz.
