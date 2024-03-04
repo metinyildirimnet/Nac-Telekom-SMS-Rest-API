@@ -1,77 +1,121 @@
 <?php
+
 class NacSms {
+    private $username;
+    private $password;
     private $baseUrl;
-    private $endpoint;
+    private $authToken;
+    private $sender;
 
-    public function __construct($endpoint) {
-        $this->baseUrl = "http://smslogin.nac.com.tr:9587/sms/";
-        $this->endpoint = $endpoint;
+    // Kurucu metot
+    public function __construct($username, $password, $sender = null) {
+        $this->username = $username;
+        $this->password = $password;
+        $this->sender = $sender;
+        // Sabit base URL
+        $this->baseUrl = "http://smslogin.nac.com.tr:9587/";
+
+        // Auth token oluşturma
+        $this->authToken = $this->generateAuthToken();
     }
 
-    public function sendSms($data) {
-        $url = $this->baseUrl . $this->endpoint;
+    // Basic authentication için auth token oluştur
+    private function generateAuthToken() {
+        return base64_encode($this->username . ":" . $this->password);
+    }
 
-        $jsonData = json_encode($data);
-
+    // Curl ile istek gönderme yardımcı fonksiyonu
+    private function sendRequest($url, $headers, $data = null) {
         $ch = curl_init($url);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonData);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+
+        // Veri gönderme
+        if ($data !== null) {
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+        }
 
         $response = curl_exec($ch);
+        $error = curl_error($ch); // Curl hata bilgisini al
         curl_close($ch);
-
+        
+        if ($error) {
+            echo "Curl error: $error\n";
+        }
+        
         return $response;
     }
 
-    public function listSenders() {
-        $url = $this->baseUrl . "list-sender";
+    // Kredi sorgulama fonksiyonu
+    public function credit() {
+        // Kredi sorgulama endpoint'i
+        $endpoint = "user/credit";
+        // HTTP isteği oluşturma
+        $requestUrl = $this->baseUrl . $endpoint;
 
-        $ch = curl_init($url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        // HTTP başlıklarını ayarlayın
+        $headers = array(
+            "Authorization: Basic $this->authToken"
+        );
 
-        $response = curl_exec($ch);
-        curl_close($ch);
-
+        // İsteği gönderme işlemi
+        $response = $this->sendRequest($requestUrl, $headers);
         return $response;
     }
 
-    public function cancelSms($id) {
-        $url = $this->baseUrl . "cancel?id=" . $id;
+    // SMS gönderimi için fonksiyon
+    public function create($title, $content, $number, $sender = null) {
+        // SMS gönderimi endpoint'i
+        $endpoint = "sms/create";
+        // HTTP isteği oluşturma
+        $requestUrl = $this->baseUrl . $endpoint;
 
-        $ch = curl_init($url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        // HTTP başlıklarını ayarlayın
+        $headers = array(
+            "Authorization: Basic $this->authToken",
+            "Content-Type: application/json"
+        );
 
-        $response = curl_exec($ch);
-        curl_close($ch);
+        // İsteği gönderme işlemi için veri
+        $data = array(
+            "title" => $title,
+            "content" => $content,
+            "number" => $number,
+            "type" => 1,
+            "sendingType" => 0,
+            "encoding" => 1,
+            "validity" => 60,
+            "sender" => $sender ?? $this->sender
+        );
 
+        // İsteği gönderme işlemi
+        $response = $this->sendRequest($requestUrl, $headers, $data);
         return $response;
     }
 
-    public function listSms() {
-        $url = $this->baseUrl . "list";
+    // SMS iptal fonksiyonu
+    public function cancel($smsId) {
+        // SMS iptal endpoint'i
+        $endpoint = "sms/cancel";
+        // HTTP isteği oluşturma
+        $requestUrl = $this->baseUrl . $endpoint;
 
-        $ch = curl_init($url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        // HTTP başlıklarını ayarlayın
+        $headers = array(
+            "Authorization: Basic $this->authToken",
+            "Content-Type: application/json"
+        );
 
-        $response = curl_exec($ch);
-        curl_close($ch);
+        // İsteği gönderme işlemi için veri
+        $data = array(
+            "smsId" => $smsId
+        );
 
-        return $response;
-    }
-
-    public function checkCredit() {
-        $url = $this->baseUrl . "credit";
-
-        $ch = curl_init($url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-
-        $response = curl_exec($ch);
-        curl_close($ch);
-
+        // İsteği gönderme işlemi
+        $response = $this->sendRequest($requestUrl, $headers, $data);
         return $response;
     }
 }
-
-?>
