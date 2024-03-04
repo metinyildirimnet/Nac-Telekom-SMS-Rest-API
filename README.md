@@ -1,4 +1,4 @@
-# Nac-Telekom-SMS-Rest-API
+# Nac Telekom SMS Rest API
 
 NacSms, PHP programlama dili için NacSMS API'sini kullanarak SMS gönderme, gönderici başlıklarını listeleme, SMS iptal etme, gönderilen SMS'leri listeleme ve kredi sorgulama gibi işlevler sağlar.
 
