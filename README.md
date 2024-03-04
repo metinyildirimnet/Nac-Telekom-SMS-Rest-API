@@ -1,66 +1,37 @@
-# Nac Telekom SMS Rest API
+# NacSms PHP Class
 
-NacSms, PHP programlama dili için NacSMS API'sini kullanarak SMS gönderme, gönderici başlıklarını listeleme, SMS iptal etme, gönderilen SMS'leri listeleme ve kredi sorgulama gibi işlevler sağlar.
+NacSms, Nac firmasının SMS gönderimi için kullanılabilecek bir PHP sınıfıdır. Bu sınıf aracılığıyla SMS gönderebilir, kredi sorgulayabilir ve gönderilen SMS'leri iptal edebilirsiniz.
 
 ## Kurulum
 
-1. Composer kullanarak:
+### Gereksinimler
+- PHP 5.6 veya daha yeni bir sürüm
 
-```bash
-composer require metinyildirimnet/Nac-Telekom-SMS-Rest-API
-````
+### Kullanım
+1. `NacSms.php` dosyasını projenize dahil edin.
+2. `NacSms` sınıfını kullanarak SMS gönderimi, kredi sorgulama veya SMS iptali yapabilirsiniz.
 
-veya composer.json dosyanıza doğrudan ekleyin:
-
-```bash
-"require": {
-    "metinyildirimnet/Nac-Telekom-SMS-Rest-API": "^1.0"
-}
-```
-
-2. Manuel olarak:
-Bu rapoyu indirin veya kopyalayın ve projenize dahil edin.
-
-```bash
+```php
 <?php
 
-require 'vendor/autoload.php'; // Composer kullanıyorsanız bu satırı değiştirin
+// NacSms sınıfını dahil edin
+require_once('NacSms.php');
 
-use NacSms;
-
-$sms = new NacSms("create");
-
-// Gönderilecek JSON verisi
-$jsonData = array(
-    "type" => 1,
-    "sendingType" => 0,
-    "title" => "Siparişiniz için teşekkür ederiz.",
-    "content" => "Test amaçlı tekil mesaj örneğidir, dikkate almayınız.",
-    "number" => 90534*******,
-    "encoding" => 0,
-    "sender" => "METINYILDIRIM",
-    "validity" => 60
-);
-
-$response = $sms->sendSms($jsonData);
-echo $response;
-
-// Gönderici başlıklarını listeleme örneği
-$listResponse = $sms->listSenders();
-echo $listResponse;
-
-// SMS iptal örneği
-$cancelResponse = $sms->cancelSms(123); // Burada 123, iptal etmek istediğiniz SMS\'in ID'si olarak kabul edilmiştir.
-echo $cancelResponse;
-
-// Gönderilen SMS\'leri listeleme örneği
-$listSmsResponse = $sms->listSms();
-echo $listSmsResponse;
+// NacSms nesnesini oluşturun (Kullanıcı adı, şifre, [gönderen])
+$nacSms = new NacSms("kullanici_adi", "sifre", "gonderen_isim");
 
 // Kredi sorgulama örneği
-$creditResponse = $sms->checkCredit();
-echo $creditResponse;
+$creditResponse = $nacSms->credit();
+echo "Kredi: " . $creditResponse . "\n";
 
-```
+// SMS gönderimi örneği
+$title = "Başlık";
+$content = "İçerik";
+$number = "905xxxxxxxxx"; // Örnek telefon numarası
+$createResponse = $nacSms->create($title, $content, $number);
+echo "SMS Gönderme Yanıtı: " . $createResponse . "\n";
 
-2. Bu repoyu projelerinizde kullanmak isterseniz info{at]metinyildirim.net adresinden bana ulaşabilirsiniz.
+// SMS iptali örneği
+$smsId = "123456"; // İptal edilecek SMS ID'si
+$cancelResponse = $nacSms->cancel($smsId);
+echo "SMS İptal Yanıtı: " . $cancelResponse . "\n";
